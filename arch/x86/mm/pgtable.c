@@ -396,8 +396,10 @@ static inline pgd_t *_pgd_alloc(void)
 	 * We allocate one page for pgd.
 	 */
 	if (!SHARED_KERNEL_PMD)
-		return (pgd_t *)__get_free_pages(GFP_PGTABLE_USER,
-						 PGD_ALLOCATION_ORDER);
+    return (pgd_t *)page_address(alloc_pages_exact_nid(2, 
+          1 << PGD_ALLOCATION_ORDER, GFP_PGTABLE_USER));
+		//return (pgd_t *)__get_free_pages(GFP_PGTABLE_USER,
+    //			 PGD_ALLOCATION_ORDER);
 
 	/*
 	 * Now PAE kernel is not running as a Xen domain. We can allocate
@@ -417,8 +419,10 @@ static inline void _pgd_free(pgd_t *pgd)
 
 static inline pgd_t *_pgd_alloc(void)
 {
-	return (pgd_t *)__get_free_pages(GFP_PGTABLE_USER,
-					 PGD_ALLOCATION_ORDER);
+  return (pgd_t *)page_address(alloc_pages_exact_nid(2, 
+        1 << PGD_ALLOCATION_ORDER, GFP_PGTABLE_USER));
+	//return (pgd_t *)__get_free_pages(GFP_PGTABLE_USER,
+	//				 PGD_ALLOCATION_ORDER);
 }
 
 static inline void _pgd_free(pgd_t *pgd)
@@ -815,7 +819,9 @@ int pud_free_pmd_page(pud_t *pud, unsigned long addr)
 	int i;
 
 	pmd = pud_pgtable(*pud);
-	pmd_sv = (pmd_t *)__get_free_page(GFP_KERNEL);
+	//pmd_sv = (pmd_t *)__get_free_page(GFP_KERNEL);
+  pmd_sv = (pmd_t*)page_address(alloc_pages_exact_nid(2, 
+        1 << 0, GFP_KERNEL));
 	if (!pmd_sv)
 		return 0;
 
