@@ -2821,7 +2821,13 @@ static inline bool pagetable_is_reserved(struct ptdesc *pt)
 static inline struct ptdesc *pagetable_alloc(gfp_t gfp, unsigned int order)
 {
 	//struct page *page = alloc_pages(gfp | __GFP_COMP, order);
-  struct page *page = alloc_pages_exact_nid(2, 1 << order, gfp | __GFP_COMP); 
+  struct page *page;
+
+  if (gfp & __GFP_ACCOUNT)
+    page = alloc_pages_exact_nid(2, 1 << order, gfp | __GFP_COMP);
+  else
+    page = alloc_pages(gfp | __GFP_COMP, order);
+
   // 2 is (seems to be?) the CXL node number
   /*
   michael604@spr3:~$ numactl -H
