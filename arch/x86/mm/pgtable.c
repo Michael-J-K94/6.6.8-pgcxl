@@ -398,7 +398,7 @@ static inline pgd_t *_pgd_alloc(void)
 	gfp_t gfp = GFP_PGTABLE_USER;
   if (!SHARED_KERNEL_PMD) {
     if (gfp & __GFP_ACCOUNT) {
-      return (pgd_t *)page_address(alloc_pages_exact_nid(2, 
+      return (pgd_t *)page_address(alloc_pages_exact_nid(0, 
              1 << PGD_ALLOCATION_ORDER, GFP_PGTABLE_USER));
     }
     else {
@@ -429,7 +429,7 @@ static inline pgd_t *_pgd_alloc(void)
 {
 	gfp_t gfp = GFP_PGTABLE_USER;
   if (gfp & __GFP_ACCOUNT) {
-    return (pgd_t *)page_address(alloc_pages_exact_nid(2,
+    return (pgd_t *)page_address(alloc_pages_exact_nid(0,
         1 << PGD_ALLOCATION_ORDER, GFP_PGTABLE_USER));
   }
   else {

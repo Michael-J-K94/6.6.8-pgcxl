@@ -2824,7 +2824,7 @@ static inline struct ptdesc *pagetable_alloc(gfp_t gfp, unsigned int order)
   struct page *page;
 
   if (gfp & __GFP_ACCOUNT)
-    page = alloc_pages_exact_nid(2, 1 << order, gfp | __GFP_COMP);
+    page = alloc_pages_exact_nid(0, 1 << order, gfp | __GFP_COMP);
   else
     page = alloc_pages(gfp | __GFP_COMP, order);
 
