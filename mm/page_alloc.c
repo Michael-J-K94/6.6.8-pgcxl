@@ -4481,6 +4481,18 @@ unsigned long __get_free_pages(gfp_t gfp_mask, unsigned int order)
 }
 EXPORT_SYMBOL(__get_free_pages);
 
+unsigned long __get_cxl_free_pages(gfp_t gfp_mask, unsigned int order)
+{
+	struct page *page;
+
+	page = alloc_pages_cxl(order, gfp_mask & ~__GFP_HIGHMEM); // FIXME: Is __GFP_HIGHMEM correct?
+
+	if (!page)
+		return 0;
+	return (unsigned long) page_address(page);
+}
+EXPORT_SYMBOL(__get_cxl_free_pages);
+
 unsigned long get_zeroed_page(gfp_t gfp_mask)
 {
 	return __get_free_page(gfp_mask | __GFP_ZERO);
@@ -4728,6 +4740,31 @@ void * __meminit alloc_pages_exact_nid(int nid, size_t size, gfp_t gfp_mask)
 	if (!p)
 		return NULL;
 	return make_alloc_exact((unsigned long)page_address(p), order, size);
+}
+
+/**
+ * alloc_pages_cxl - allocate physically-contiguous pages on a cxl NUMA node.
+ * @order: Power of two of number of pages to allocate.
+ * @gfp_mask: GFP flags for the allocation.
+ *
+ * Similar to alloc_pages_exact_nid() function.
+ *
+ * Return: pointer to the allocated area or %NULL in case of error.
+ */
+#define CXL_NID 2 // FIXME: Provide proper NUMA ID of CXL memory.
+struct page * alloc_pages_cxl(unsigned int order, gfp_t gfp_mask)
+{
+	struct page *p;
+
+	// FIXME: Not sure about this flags. These lines are copied from
+	// alloc_pages_exact_nid() function.
+	if (WARN_ON_ONCE(gfp_mask & (__GFP_COMP | __GFP_HIGHMEM)))
+		gfp_mask &= ~(__GFP_COMP | __GFP_HIGHMEM);
+
+	p = alloc_pages_node(CXL_NID, gfp_mask, order);
+	if (!p)
+		return NULL;
+	return p;
 }
 
 /**

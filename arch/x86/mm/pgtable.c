@@ -391,23 +391,15 @@ void __init pgtable_cache_init(void)
 
 static inline pgd_t *_pgd_alloc(void)
 {
+	panic("[PGCXL] To confirm X86_PAE is disabled.");  // We do not consider this case.
+
 	/*
 	 * If no SHARED_KERNEL_PMD, PAE kernel is running as a Xen domain.
 	 * We allocate one page for pgd.
 	 */
-	gfp_t gfp = GFP_PGTABLE_USER;
-  if (!SHARED_KERNEL_PMD) {
-    if (gfp & __GFP_ACCOUNT) {
-      return (pgd_t *)page_address(alloc_pages_exact_nid(0, 
-             1 << PGD_ALLOCATION_ORDER, GFP_PGTABLE_USER));
-    }
-    else {
-      return (pgd_t *)__get_free_pages(GFP_PGTABLE_USER,
-             PGD_ALLOCATION_ORDER);
-    }
-  }
-		//return (pgd_t *)__get_free_pages(GFP_PGTABLE_USER,
-    //			 PGD_ALLOCATION_ORDER);
+	if (!SHARED_KERNEL_PMD)
+			return (pgd_t *)__get_free_pages(GFP_PGTABLE_USER,
+							 PGD_ALLOCATION_ORDER);
 
 	/*
 	 * Now PAE kernel is not running as a Xen domain. We can allocate
@@ -427,15 +419,9 @@ static inline void _pgd_free(pgd_t *pgd)
 
 static inline pgd_t *_pgd_alloc(void)
 {
-	gfp_t gfp = GFP_PGTABLE_USER;
-  if (gfp & __GFP_ACCOUNT) {
-    return (pgd_t *)page_address(alloc_pages_exact_nid(0,
-        1 << PGD_ALLOCATION_ORDER, GFP_PGTABLE_USER));
-  }
-  else {
-	  return (pgd_t *)__get_free_pages(GFP_PGTABLE_USER,
-        PGD_ALLOCATION_ORDER);
-  }
+	// Always, GFP_PGTABLE_USER & __GFP_ACCOUNT == 1
+	return (pgd_t *)__get_cxl_free_pages(GFP_PGTABLE_USER,
+					     PGD_ALLOCATION_ORDER);
 }
 
 static inline void _pgd_free(pgd_t *pgd)

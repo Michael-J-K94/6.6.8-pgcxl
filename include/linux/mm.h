@@ -2820,16 +2820,15 @@ static inline bool pagetable_is_reserved(struct ptdesc *pt)
  */
 static inline struct ptdesc *pagetable_alloc(gfp_t gfp, unsigned int order)
 {
-	//struct page *page = alloc_pages(gfp | __GFP_COMP, order);
-  struct page *page;
+	struct page *page;
 
-  if (gfp & __GFP_ACCOUNT)
-    page = alloc_pages_exact_nid(0, 1 << order, gfp | __GFP_COMP);
-  else
-    page = alloc_pages(gfp | __GFP_COMP, order);
+	if (gfp & __GFP_ACCOUNT)
+		page = alloc_pages_cxl(order, gfp | __GFP_COMP);
+	else
+		page = alloc_pages(gfp | __GFP_COMP, order);
 
-  // 2 is (seems to be?) the CXL node number
-  /*
+	// 2 is (seems to be?) the CXL node number
+	/*
   michael604@spr3:~$ numactl -H
   available: 3 nodes (0-2)
   node 0 cpus: 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
