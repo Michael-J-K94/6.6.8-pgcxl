@@ -403,6 +403,7 @@ void ptdump_walk_pgd_level(struct seq_file *m, struct mm_struct *mm)
 {
 	ptdump_walk_pgd_level_core(m, mm, mm->pgd, false, true);
 }
+EXPORT_SYMBOL_GPL(ptdump_walk_pgd_level);
 
 void ptdump_walk_pgd_level_debugfs(struct seq_file *m, struct mm_struct *mm,
 				   bool user)
